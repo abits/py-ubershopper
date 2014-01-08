@@ -1,0 +1,9 @@
+*.pyc
+*.pyo
+*.mo
+*.idea
+venv/
+*~
+doc/_build
+*.swp
+mysql-connector-*
