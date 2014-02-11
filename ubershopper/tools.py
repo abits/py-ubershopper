@@ -28,3 +28,15 @@ class MongoDocumentEncoder(simplejson.JSONEncoder):
 
 def mongodoc_jsonify(*args, **kwargs):
     return Response(simplejson.dumps(dict(*args, **kwargs), cls=MongoDocumentEncoder), mimetype='application/json')
+
+
+def collectify(**kwargs):
+    collection = {
+        'collection': {
+            'version': kwargs['version'],
+            'href': kwargs['href'],
+            'items': kwargs['items']
+        }
+    }
+    return Response(simplejson.dumps(collection, cls=MongoDocumentEncoder),
+                    mimetype='application/vnd.collection+json')

@@ -19,7 +19,7 @@ def create_admin_user(db):
         admin.firstname = u'Admin'
         admin.lastname = u'Admin'
         admin.created_at = datetime.utcnow()
-        admin.modified_at = datetime.utcnow()
+        admin.updated_at = datetime.utcnow()
         admin.deleted_at = None
         admin.set_password('password')
         admin.save()

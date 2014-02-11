@@ -12,6 +12,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import BadSignature, SignatureExpired
 from ubershopper import app, auth, db
 
+
 class User(Document):
     structure = {
         'username': unicode,
@@ -24,7 +25,7 @@ class User(Document):
             'ip': basestring
         },
         'created_at': datetime,
-        'modified_at': datetime,
+        'updated_at': datetime,
         'deleted_at': datetime,
     }
     validators = {
@@ -67,9 +68,18 @@ class User(Document):
                 'ip': self.last_login['ip']
             },
             'created_at': self.created_at,
-            'modified_at': self.modified_at,
+            'updated_at': self.updated_at,
             'deleted_at': self.deleted_at,
         }
+
+        
+    def as_collection_item(self):
+        items = []
+        for prop in ['username', 'firstname', 'lastname', 'email']:
+            items.append({ 'name': prop,
+                           'value': getattr(self, prop) })
+        return {'data': items}
+
 
     def generate_auth_token(self, expiration=600):
         s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
@@ -88,3 +98,70 @@ class User(Document):
         user = users.User.find_one({'_id': ObjectId(data['id'])})
         g.user = user
         return user
+
+
+class Shop(Document):
+    structure = {
+        'name': unicode,
+        'description': unicode,
+        'zip': int,
+        'address': unicode,
+        'city': unicode,
+        'country': unicode,
+        'aisles': [basestring],
+        'tags': [basestring],
+        'user': User,
+        'loc': {
+            'lon': float,
+            'lat': float
+        }
+    }
+
+    use_dot_notation = True
+    use_autorefs = True
+
+    def __repr__(self):
+        return '<Shop: %r>' % self.name
+
+
+class Item(Document):
+    structure = {
+        'name': unicode,
+        'description': unicode,
+        'tags': [basestring],
+        'user': User,
+        'shops': [
+            {
+                'shop': Shop,
+                'aisle': int
+            }
+        ]
+    }
+
+    use_dot_notation = True
+    use_autorefs = True
+
+    def __repr__(self):
+        return '<Item: %r>' % self.name
+
+
+class ListItem(Document):
+    structure = {
+        'item': Item,
+        'quantity': float,
+        'unit': basestring,
+        'user': User,
+        'created_at': datetime,
+        'updated_at': datetime,
+        'deleted_at': datetime,
+    }
+
+
+class List(Document):
+    structure = {
+        'user': User,
+        'items': [ListItem],
+        'created_at': datetime,
+        'updated_at': datetime,
+        'deleted_at': datetime
+    }

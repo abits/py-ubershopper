@@ -14,12 +14,12 @@ def get_resource():
     return jsonify({'data': 'Hello, %s!' % g.user.username})
 
 
-@app.route('/accounts/api/v1.0/users', methods=['GET'])
+@app.route('/api/users', methods=['GET'])
 @auth.login_required
-def get_tasks():
+def get_users():
     users = db.users
-    data = [user.as_dict() for user in users.User.find()]
-    return tools.mongodoc_jsonify({'users': data})
+    data = [user.as_collection_item() for user in users.User.find()]
+    return tools.collectify(items=data, href='/api/users', version='1.0', kparam='username')
 
 @app.route('/api/token')
 @auth.login_required
@@ -40,4 +40,6 @@ def new_user():
     user.username = username
     user.set_password(password)
     user.save()
-    return jsonify({'username': user.username}), 201, {'Location': url_for('get_tasks')}
+    return jsonify({'username': user.username}), 201, {'Location': url_for('get_users')}
+
+

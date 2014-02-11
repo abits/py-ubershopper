@@ -18,5 +18,6 @@ def runserver():
 def fixtures():
     Fixtures.load(db)
 
+
 if __name__ == "__main__":
     manager.run()
